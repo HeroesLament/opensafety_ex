@@ -9,6 +9,7 @@ defmodule OpenSafety.MixProject do
       app: :opensafety_ex,
       version: @version,
       elixir: "~> 1.18",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
@@ -25,6 +26,12 @@ defmodule OpenSafety.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  # tools/ holds host-only mix tasks (C coverage analysis). Kept out of
+  # :prod so a dependent project, which compiles this as :prod, never packs
+  # them into an AtomVM image.
+  defp elixirc_paths(:prod), do: ["lib"]
+  defp elixirc_paths(_), do: ["lib", "tools"]
 
   defp deps do
     []

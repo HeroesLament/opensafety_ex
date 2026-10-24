@@ -62,7 +62,7 @@ defmodule OpenSafety.Frame do
 
   @type decode_error ::
           :too_short
-          | {:length, expected :: non_neg_integer(), got :: non_neg_integer()}
+          | {:length, expected :: non_neg_integer() | nil | :too_long, got :: non_neg_integer()}
           | {:bad_id, 0..0x3F}
           | {:bad_sadr, non_neg_integer()}
           | {:id_mismatch, 0..0x3F, 0..0x3F}
@@ -237,7 +237,8 @@ defmodule OpenSafety.Frame do
     end
   end
 
-  defp check_length(_bin, le, _id) when le > @max_le, do: {:error, {:length, nil, le}}
+  # LE beyond the maximum: SERR_k_SFS_TOO_LONG rather than a length mismatch.
+  defp check_length(_bin, le, _id) when le > @max_le, do: {:error, {:length, :too_long, le}}
 
   defp check_length(bin, le, id) do
     expected = frame_length(le, id)
